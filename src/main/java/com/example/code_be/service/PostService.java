@@ -23,6 +23,10 @@ public class PostService {
         return postRepository.findById(id).orElse(null);
     }
 
+    public Page<Post> findAll(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
+
     public Page<Post> findVisiblePosts(Long userId, Pageable pageable) {
         return postRepository.findVisiblePosts(userId, pageable);
     }
@@ -33,6 +37,10 @@ public class PostService {
 
     public void delete(Long id) {
         postRepository.deleteById(id);
+    }
+
+    public long count() {
+        return postRepository.count();
     }
 
     public boolean canView(Post post, Long userId) {

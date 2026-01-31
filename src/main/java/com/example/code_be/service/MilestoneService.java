@@ -32,6 +32,10 @@ public class MilestoneService {
         milestoneRepository.deleteById(id);
     }
 
+    public long count() {
+        return milestoneRepository.count();
+    }
+
     public List<Milestone> findOnThisDay(int month, int day) {
         return milestoneRepository.findByMonthAndDay(month, day);
     }
