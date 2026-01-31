@@ -10,13 +10,9 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns(
-                        "http://localhost:*",
-                        "https://*.vercel.app",
-                        "https://ourloveprivate.vercel.app",
-                        "https://ourlove5504-gtr5j.ondigitalocean.app")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
+                .allowedOriginPatterns("*") // Allow ALL origins
+                .allowedMethods("*") // Allow ALL methods
+                .allowedHeaders("*") // Allow ALL headers
                 .allowCredentials(true)
                 .maxAge(3600);
     }
