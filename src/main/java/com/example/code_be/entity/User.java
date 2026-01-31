@@ -25,6 +25,9 @@ public class User {
     @Column(nullable = false)
     private String pin; // Used as password
 
+    @Column(nullable = true)
+    private String email; // Added to match database schema
+
     private String avatar;
 
     @Column(name = "couple_start_date")

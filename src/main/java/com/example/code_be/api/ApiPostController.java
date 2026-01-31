@@ -3,14 +3,12 @@ package com.example.code_be.api;
 import com.example.code_be.dto.ApiResponse;
 import com.example.code_be.dto.PostRequest;
 import com.example.code_be.entity.Post;
-import com.example.code_be.entity.User;
 import com.example.code_be.enums.Mood;
 import com.example.code_be.enums.Visibility;
 import com.example.code_be.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,63 +30,37 @@ public class ApiPostController {
     @GetMapping
     @Operation(summary = "Danh sách bài viết", description = "Lấy danh sách bài viết với phân trang")
     public ResponseEntity<ApiResponse<Map<String, Object>>> list(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            HttpSession session) {
+            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page) {
 
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
-        }
-
-        Page<Post> posts = postService.findVisiblePosts(user.getId(), PageRequest.of(page, 10));
+        Page<Post> posts = postService.findAll(PageRequest.of(page, 10));
 
         Map<String, Object> data = new HashMap<>();
         data.put("posts", posts.getContent());
         data.put("currentPage", page);
         data.put("totalPages", posts.getTotalPages());
         data.put("totalElements", posts.getTotalElements());
-        data.put("userId", user.getId());
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Chi tiết bài viết", description = "Lấy thông tin chi tiết bài viết")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getById(
-            @PathVariable Long id,
-            HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
-        }
-
+    public ResponseEntity<ApiResponse<Post>> getById(@PathVariable Long id) {
         Post post = postService.findById(id);
-        if (post == null || !postService.canView(post, user.getId())) {
+        if (post == null) {
             return ResponseEntity.notFound().build();
         }
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("post", post);
-        data.put("userId", user.getId());
-        data.put("isOwner", post.getOwnerId().equals(user.getId()));
-
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(post));
     }
 
     @PostMapping
     @Operation(summary = "Tạo bài viết", description = "Tạo bài viết mới")
     public ResponseEntity<ApiResponse<Post>> create(
             @RequestBody PostRequest request,
-            HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
-        }
+            @RequestParam(defaultValue = "1") Long userId) {
 
         Post post = Post.builder()
-                .ownerId(user.getId())
+                .ownerId(userId)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .mood(request.getMood())
@@ -106,16 +78,10 @@ public class ApiPostController {
     @Operation(summary = "Cập nhật bài viết", description = "Cập nhật bài viết theo ID")
     public ResponseEntity<ApiResponse<Post>> update(
             @PathVariable Long id,
-            @RequestBody PostRequest request,
-            HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
-        }
+            @RequestBody PostRequest request) {
 
         Post post = postService.findById(id);
-        if (post == null || !post.getOwnerId().equals(user.getId())) {
+        if (post == null) {
             return ResponseEntity.notFound().build();
         }
 
@@ -130,21 +96,12 @@ public class ApiPostController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Xóa bài viết", description = "Xóa bài viết theo ID")
-    public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable Long id,
-            HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
-        }
-
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         Post post = postService.findById(id);
-        if (post != null && post.getOwnerId().equals(user.getId())) {
+        if (post != null) {
             postService.delete(id);
             return ResponseEntity.ok(ApiResponse.success("Đã xóa bài viết!", null));
         }
-
         return ResponseEntity.notFound().build();
     }
 
