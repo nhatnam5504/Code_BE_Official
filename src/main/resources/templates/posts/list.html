@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">📝 Nhật ký</h1>
+        <a th:href="@{/posts/new}" class="btn btn-primary">+ Viết mới</a>
+    </div>
+
+    <div th:each="post : ${posts}" class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h3 style="margin-bottom: 0.5rem;">
+                    <span th:if="${post.mood != null}" th:text="${post.mood.emoji}">😊</span>
+                    <a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}"
+                        style="color: white; text-decoration: none;">Title</a>
+                </h3>
+                <p style="color: #a0a0a0; margin-bottom: 0.75rem;" th:text="${#strings.abbreviate(post.content, 150)}">
+                    Content preview</p>
+                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #a0a0a0;">
+                    <span>📅 <span th:text="${#temporals.format(post.occurredAt, 'dd/MM/yyyy')}">Date</span></span>
+                    <span th:switch="${post.visibility.name()}">
+                        <span th:case="'BOTH'">👥 Cả hai</span>
+                        <span th:case="'ONLY_ME'">🔒 Chỉ mình</span>
+                        <span th:case="'ONLY_PARTNER'">💕 Cho người yêu</span>
+                    </span>
+                </div>
+            </div>
+            <div th:if="${post.ownerId == userId}">
+                <a th:href="@{/posts/{id}/edit(id=${post.id})}" class="btn btn-secondary btn-small">Sửa</a>
+            </div>
+        </div>
+    </div>
+
+    <p th:if="${#lists.isEmpty(posts)}" style="text-align: center; color: #a0a0a0; padding: 3rem;">
+        Chưa có bài viết nào. <a th:href="@{/posts/new}" style="color: #ff6b9d;">Viết ngay!</a>
+    </p>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 1}" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem;">
+        <a th:if="${currentPage > 0}" th:href="@{/posts(page=${currentPage - 1})}" class="btn btn-secondary btn-small">←
+            Trước</a>
+        <span style="padding: 0.5rem 1rem;">Trang <span th:text="${currentPage + 1}">1</span> / <span
+                th:text="${totalPages}">1</span></span>
+        <a th:if="${currentPage < totalPages - 1}" th:href="@{/posts(page=${currentPage + 1})}"
+            class="btn btn-secondary btn-small">Tiếp →</a>
+    </div>
+</th:block>

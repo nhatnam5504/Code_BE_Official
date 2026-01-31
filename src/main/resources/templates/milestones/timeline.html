@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">🏆 Timeline Tình Yêu</h1>
+        <a th:href="@{/milestones/new}" class="btn btn-primary">+ Thêm mốc</a>
+    </div>
+
+    <div class="timeline" th:if="${!milestones.isEmpty()}">
+        <div th:each="m : ${milestones}" class="timeline-item">
+            <div class="timeline-dot" th:text="${m.icon ?: '💕'}">💕</div>
+            <div class="card" style="margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 th:text="${m.title}" style="margin-bottom: 0.5rem;">Title</h3>
+                        <p th:if="${m.description}" style="color: #a0a0a0; margin-bottom: 0.5rem;"
+                            th:text="${m.description}">Description</p>
+                        <small style="color: #ff6b9d;" th:text="${#temporals.format(m.date, 'dd/MM/yyyy')}">Date</small>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a th:href="@{/milestones/{id}/edit(id=${m.id})}" class="btn btn-secondary btn-small">✏️</a>
+                        <form th:action="@{/milestones/{id}/delete(id=${m.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-small"
+                                onclick="return confirm('Xóa mốc này?')">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p th:if="${milestones.isEmpty()}" style="text-align: center; color: #a0a0a0; padding: 3rem;">
+        Chưa có mốc kỉ niệm nào. <a th:href="@{/milestones/new}" style="color: #ff6b9d;">Thêm ngay!</a>
+    </p>
+</th:block>

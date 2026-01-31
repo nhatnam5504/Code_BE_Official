@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">📊 Lịch sử cảm xúc</h1>
+        <a th:href="@{/mood}" class="btn btn-secondary">← Quay lại</a>
+    </div>
+
+    <div th:each="dm : ${history}" class="card" style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 2rem;" th:text="${dm.mood.emoji}">😊</span>
+        <div style="flex: 1;">
+            <p style="font-weight: 600;" th:text="${dm.mood.label}">Mood</p>
+            <p th:if="${dm.note}" style="color: #a0a0a0;" th:text="${dm.note}">Note</p>
+        </div>
+        <small style="color: #a0a0a0;" th:text="${#temporals.format(dm.date, 'dd/MM/yyyy')}">Date</small>
+    </div>
+
+    <p th:if="${history.isEmpty()}" style="text-align: center; color: #a0a0a0; padding: 3rem;">
+        Chưa có lịch sử cảm xúc nào.
+    </p>
+</th:block>

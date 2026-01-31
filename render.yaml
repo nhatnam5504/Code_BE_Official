@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ourlove-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ourlove-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+databases:
+  - name: ourlove-db
+    databaseName: ourlove
+    user: ourlove
+    plan: free

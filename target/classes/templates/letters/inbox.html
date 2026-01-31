@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">💌 Hòm Thư Bí Mật</h1>
+        <a th:href="@{/letters/compose}" class="btn btn-primary">+ Viết thư</a>
+    </div>
+
+    <!-- Inbox / Sent tabs -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <a th:href="@{/letters?box=inbox}" th:classappend="${box == 'inbox' ? 'btn-primary' : 'btn-secondary'}"
+            class="btn">📥 Thư nhận</a>
+        <a th:href="@{/letters?box=sent}" th:classappend="${box == 'sent' ? 'btn-primary' : 'btn-secondary'}"
+            class="btn">📤 Thư đã gửi</a>
+    </div>
+
+    <div th:each="letter : ${letters}" class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <span th:if="${letter.isOpened}" style="font-size: 1.5rem;">💌</span>
+                    <span th:unless="${letter.isOpened}" style="font-size: 1.5rem;">✉️</span>
+                    <div>
+                        <p style="font-weight: 600;">
+                            <span th:if="${box == 'inbox'}">Từ người yêu</span>
+                            <span th:if="${box == 'sent'}">Gửi cho người yêu</span>
+                        </p>
+                        <small style="color: #a0a0a0;"
+                            th:text="${#temporals.format(letter.createdAt, 'HH:mm dd/MM/yyyy')}">Date</small>
+                    </div>
+                </div>
+
+                <!-- Letter status -->
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <span th:if="${letter.isOpened}"
+                        style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                        ✓ Đã mở
+                    </span>
+                    <span th:unless="${letter.isOpened}" th:switch="${letter.openType.name()}">
+                        <span th:case="'SCHEDULED'"
+                            style="background: rgba(255, 107, 157, 0.2); color: #ff6b9d; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                            ⏳ Mở lúc <span th:text="${#temporals.format(letter.openAt, 'dd/MM/yyyy')}">Date</span>
+                        </span>
+                        <span th:case="'BOTH_CONFIRM'"
+                            style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                            🤝 Cả hai xác nhận
+                            <span th:if="${letter.senderConfirmed}">• Người gửi ✓</span>
+                            <span th:if="${letter.receiverConfirmed}">• Người nhận ✓</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <a th:href="@{/letters/{id}(id=${letter.id})}" class="btn btn-secondary btn-small">Xem</a>
+        </div>
+    </div>
+
+    <p th:if="${letters.isEmpty()}" style="text-align: center; color: #a0a0a0; padding: 3rem;">
+        <span th:if="${box == 'inbox'}">Chưa có thư nào. Đợi người yêu gửi thư nhé! 💕</span>
+        <span th:if="${box == 'sent'}">Bạn chưa gửi thư nào. <a th:href="@{/letters/compose}"
+                style="color: #ff6b9d;">Viết thư ngay!</a></span>
+    </p>
+</th:block>

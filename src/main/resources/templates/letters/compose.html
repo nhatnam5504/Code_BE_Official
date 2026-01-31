@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">✍️ Viết thư cho <span th:text="${partner?.name ?: 'người yêu'}">người yêu</span></h1>
+        <a th:href="@{/letters}" class="btn btn-secondary">← Quay lại</a>
+    </div>
+
+    <div class="card" style="max-width: 700px; margin: 0 auto;">
+        <form th:action="@{/letters/compose}" method="post">
+            <div class="form-group">
+                <label class="form-label">Nội dung thư 💝</label>
+                <textarea name="content" class="form-textarea" rows="10" required
+                    placeholder="Anh/Em yêu ơi...&#10;&#10;Có những điều em/anh muốn nói với em/anh..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Khi nào mở thư? *</label>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 1rem; background: rgba(255, 107, 157, 0.05); border-radius: 12px;">
+                        <input type="radio" name="openType" value="NOW" checked onchange="toggleSchedule()">
+                        <div>
+                            <strong>📬 Mở ngay</strong>
+                            <p style="color: #a0a0a0; font-size: 0.9rem; margin-top: 0.25rem;">Người nhận có thể đọc
+                                ngay khi nhận được</p>
+                        </div>
+                    </label>
+
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 1rem; background: rgba(255, 107, 157, 0.05); border-radius: 12px;">
+                        <input type="radio" name="openType" value="SCHEDULED" onchange="toggleSchedule()">
+                        <div>
+                            <strong>⏳ Hẹn ngày mở</strong>
+                            <p style="color: #a0a0a0; font-size: 0.9rem; margin-top: 0.25rem;">Chỉ mở được vào ngày bạn
+                                chọn (ví dụ: kỉ niệm, sinh nhật...)</p>
+                        </div>
+                    </label>
+
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 1rem; background: rgba(255, 107, 157, 0.05); border-radius: 12px;">
+                        <input type="radio" name="openType" value="BOTH_CONFIRM" onchange="toggleSchedule()">
+                        <div>
+                            <strong>🤝 Cả hai cùng xác nhận</strong>
+                            <p style="color: #a0a0a0; font-size: 0.9rem; margin-top: 0.25rem;">Chỉ mở khi cả hai người
+                                đều bấm xác nhận</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" id="scheduleDate" style="display: none;">
+                <label class="form-label">Ngày mở thư</label>
+                <input type="date" name="openAt" class="form-input">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Gửi thư 💌</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleSchedule() {
+            const scheduled = document.querySelector('input[value="SCHEDULED"]').checked;
+            document.getElementById('scheduleDate').style.display = scheduled ? 'block' : 'none';
+        }
+    </script>
+</th:block>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<!-- Home page content fragment -->
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <!-- Welcome & Days Together -->
+    <div class="card"
+        style="text-align: center; padding: 3rem; background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(196, 69, 105, 0.1) 100%);">
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+            Xin chào, <span th:text="${user.name}"
+                style="background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">bạn</span>!
+            💕
+        </h1>
+        <div th:if="${daysTogether != null}">
+            <p class="stat-number" th:text="${daysTogether}">0</p>
+            <p class="stat-label">ngày bên nhau 🥰</p>
+        </div>
+    </div>
+
+    <!-- Quick Message Box -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">💬 Gửi lời nhắn nhanh cho <span th:text="${partner?.name ?: 'người yêu'}">người
+                yêu</span></h3>
+        <form th:action="@{/quick}" method="post" style="display: flex; gap: 1rem;">
+            <input type="text" name="content" class="form-input" placeholder="Em nhớ anh... 🥺" required
+                style="flex: 1;">
+            <button type="submit" class="btn btn-primary">Gửi 💕</button>
+        </form>
+    </div>
+
+    <!-- Quick Messages Received -->
+    <div class="card" th:if="${!quickMessages.isEmpty()}">
+        <h3 style="margin-bottom: 1rem;">💌 Lời nhắn từ <span th:text="${partner?.name ?: 'người yêu'}">người yêu</span>
+        </h3>
+        <div th:each="msg : ${quickMessages}" class="card"
+            style="background: linear-gradient(135deg, rgba(255, 154, 158, 0.2) 0%, rgba(254, 207, 239, 0.2) 100%); margin-bottom: 0.5rem;">
+            <p th:text="${msg.content}" style="font-size: 1.2rem;">Message</p>
+            <small style="color: #a0a0a0;" th:text="${#temporals.format(msg.createdAt, 'HH:mm')}">Time</small>
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <!-- Today's Mood -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">😊 Cảm xúc hôm nay</h3>
+            <div th:if="${!todayMoods.isEmpty()}" class="grid grid-2">
+                <div th:each="dm : ${todayMoods}" style="text-align: center;">
+                    <span class="mood-emoji" th:text="${dm.mood.emoji}">😊</span>
+                    <p th:text="${dm.userId == userId ? 'Bạn' : partner?.name}">User</p>
+                    <small th:if="${dm.note}" style="color: #a0a0a0;" th:text="${dm.note}">Note</small>
+                </div>
+            </div>
+            <p th:if="${todayMoods.isEmpty()}" style="color: #a0a0a0;">Chưa ai cập nhật cảm xúc hôm nay</p>
+            <a th:href="@{/mood}" class="btn btn-secondary btn-small" style="margin-top: 1rem;">Cập nhật mood</a>
+        </div>
+
+        <!-- Recent Milestones -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">🏆 Mốc kỉ niệm gần đây</h3>
+            <div th:if="${!milestones.isEmpty()}">
+                <div th:each="m : ${milestones}"
+                    style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.75rem;">
+                    <span th:text="${m.icon ?: '💕'}" style="font-size: 1.5rem;">💕</span>
+                    <div>
+                        <p th:text="${m.title}" style="font-weight: 600;">Title</p>
+                        <small style="color: #a0a0a0;" th:text="${#temporals.format(m.date, 'dd/MM/yyyy')}">Date</small>
+                    </div>
+                </div>
+            </div>
+            <p th:if="${milestones.isEmpty()}" style="color: #a0a0a0;">Chưa có mốc kỉ niệm nào</p>
+            <a th:href="@{/milestones}" class="btn btn-secondary btn-small" style="margin-top: 1rem;">Xem tất cả</a>
+        </div>
+    </div>
+
+    <!-- On This Day -->
+    <div class="card" th:if="${!memories.isEmpty()}">
+        <h2 style="margin-bottom: 1.5rem; text-align: center;">
+            📅 Ngày này năm trước...
+        </h2>
+        <div th:each="memory : ${memories}">
+            <div class="card"
+                style="background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(196, 69, 105, 0.1) 100%);">
+                <h4 style="color: #ff6b9d; margin-bottom: 1rem;">
+                    <span th:text="${today.year - memory.year}">1</span> năm trước
+                    (<span th:text="${memory.year}">2025</span>)
+                </h4>
+
+                <!-- Photos from that day -->
+                <div th:if="${!memory.photos.isEmpty()}" class="photo-grid" style="margin-bottom: 1rem;">
+                    <div th:each="photo : ${memory.photos}" class="photo-item">
+                        <img th:src="${photo.url}" alt="Memory photo">
+                    </div>
+                </div>
+
+                <!-- Posts from that day -->
+                <div th:each="post : ${memory.posts}" style="margin-bottom: 0.5rem;">
+                    <p>
+                        <span th:if="${post.mood != null}" th:text="${post.mood.emoji}">😊</span>
+                        <strong th:text="${post.title}">Title</strong>
+                    </p>
+                    <p style="color: #a0a0a0;" th:text="${#strings.abbreviate(post.content, 100)}">Content</p>
+                </div>
+
+                <!-- Milestones from that day -->
+                <div th:each="m : ${memory.milestones}" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span th:text="${m.icon ?: '💕'}">💕</span>
+                    <strong th:text="${m.title}">Milestone</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>

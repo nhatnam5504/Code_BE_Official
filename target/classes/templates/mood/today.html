@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+
+</html>
+
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="page-header">
+        <h1 class="page-title">😊 Cảm xúc hôm nay</h1>
+    </div>
+
+    <!-- Set my mood -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">Hôm nay bạn cảm thấy thế nào?</h3>
+        <form th:action="@{/mood}" method="post">
+            <div class="emoji-picker" style="justify-content: center; margin-bottom: 1rem;">
+                <th:block th:each="m : ${moods}">
+                    <label>
+                        <input type="radio" name="mood" th:value="${m.name()}"
+                            th:checked="${myMood != null && myMood.mood.name() == m.name()}" style="display: none;"
+                            required>
+                        <span class="emoji-btn" th:text="${m.emoji}" th:title="${m.label}"
+                            th:classappend="${myMood != null && myMood.mood.name() == m.name() ? 'selected' : ''}"
+                            onclick="this.parentElement.querySelector('input').checked = true;
+                                       document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('selected'));
+                                       this.classList.add('selected');">😊</span>
+                    </label>
+                </th:block>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="note" class="form-input" th:value="${myMood?.note}"
+                    placeholder="Một vài dòng tâm sự... (không bắt buộc)">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <span th:text="${myMood != null ? 'Cập nhật' : 'Lưu'}">Save</span> cảm xúc
+            </button>
+        </form>
+    </div>
+
+    <!-- Both moods today -->
+    <div class="grid grid-2" th:if="${!todayMoods.isEmpty()}">
+        <div th:each="dm : ${todayMoods}" class="card stat-card">
+            <span class="mood-emoji" th:text="${dm.mood.emoji}">😊</span>
+            <p style="font-weight: 600; margin-bottom: 0.5rem;" th:text="${dm.userId == userId ? 'Bạn' : 'Người yêu'}">
+                User</p>
+            <p style="color: #a0a0a0;" th:text="${dm.mood.label}">Mood label</p>
+            <p th:if="${dm.note}" style="margin-top: 0.75rem; font-style: italic; color: #ff9a9e;" th:text="${dm.note}">
+                Note</p>
+        </div>
+    </div>
+
+    <a th:href="@{/mood/history}" class="btn btn-secondary" style="margin-top: 1rem;">📊 Xem lịch sử cảm xúc</a>
+</th:block>
